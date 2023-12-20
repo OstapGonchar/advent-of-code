@@ -27,7 +27,29 @@ class Day7Test {
 
         //then
         assertEquals(expectedResult, result)
+    }
+    @Test
+    fun part2Test() {
+        //given
+        val expectedResult = 5905
 
+        //when
+        val result = Day7().part2("day7_test.txt")
+
+        //then
+        assertEquals(expectedResult, result)
+
+    }
+    @Test
+    fun part2Real() {
+        //given
+        val expectedResult = 251195607
+
+        //when
+        val result = Day7().part2("day7_real.txt")
+
+        //then
+        assertEquals(expectedResult, result)
     }
 
     @ParameterizedTest
@@ -44,6 +66,30 @@ class Day7Test {
 
         //when
         val result = DeckPower.getDeckPower(card)
+
+        //then
+        assertEquals(expectedResult, result)
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        *arrayOf(
+            "KKKKK,FIVE_OF_A_KIND",
+            "JJKKK,FIVE_OF_A_KIND",
+            "JJAAJ,FIVE_OF_A_KIND",
+            "JJA2J,FOUR_OF_A_KIND",
+            "AAAJJ,FIVE_OF_A_KIND",
+            "AAKKJ,FULL_HOUSE",
+            "2345J,ONE_PAIR",
+            "2245J,THREE_OF_A_KIND",
+        )
+    )
+    fun testDeckPowerPart2(card: String, deckPower: String) {
+        //given
+        val expectedResult = DeckPower.valueOf(deckPower)
+
+        //when
+        val result = DeckPower.getDeckPowerWithJokers(card)
 
         //then
         assertEquals(expectedResult, result)
