@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class Day8Test {
@@ -34,6 +35,30 @@ class Day8Test {
 
         //when
         val result = Day8().part1("day8_real.txt")
+
+        //then
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun part2Test3() {
+        //given
+        val expectedResult = 6L
+
+        //when
+        val result = Day8().part2("day8_test3.txt")
+
+        //then
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun part2Real() {
+        //given
+        val expectedResult = 9606140307013
+
+        //when
+        val result = Day8().part2("day8_real.txt")
 
         //then
         assertEquals(expectedResult, result)
