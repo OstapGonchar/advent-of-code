@@ -26,4 +26,28 @@ class Day10Test {
         //then
         assertEquals(expectedResult, result)
     }
+
+    @Test
+    fun part2Test2() {
+        //given
+        val expectedResult = 4
+
+        //when
+        val result = Day10().part2("day10_test2.txt")
+
+        //then
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun part2Real() {
+        //given
+        val expectedResult = 483
+
+        //when
+        val result = Day10().part2("day10_real.txt")
+
+        //then
+        assertEquals(expectedResult, result)
+    }
 }

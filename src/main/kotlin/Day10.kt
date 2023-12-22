@@ -13,6 +13,56 @@ class Day10 {
             .indexOfFirst { 'S' in it }
             .let { y -> Point2D(grid[y].indexOf('S'), y) }
 
+        return goThroughPipe(start, grid).size / 2
+    }
+
+    fun part2(fileName: String): Int {
+        val grid = FileProvider().readFileAsLines(fileName)
+            .map { it.toCharArray() }.toTypedArray()
+
+        val start = grid
+            .indexOfFirst { 'S' in it }
+            .let { y -> Point2D(grid[y].indexOf('S'), y) }
+
+        val pipe = goThroughPipe(start, grid)
+
+        replaceAllNonPipeWithDot(grid, pipe)
+
+        val emptyCorner =
+            listOf(
+                Point2D(0, 0),
+                Point2D(0, grid[0].lastIndex),
+                Point2D(grid.lastIndex, 0),
+                Point2D(grid.lastIndex, grid[0].lastIndex)
+            ).first { grid[it] == '.' }
+
+        goThroughPipe(start, grid) { current, direction, nextDirection ->
+            grid.fill(current + markingDirection.getValue(direction), 'O')
+            if (grid[current] in setOf('7', 'L', 'J', 'F')) {
+                grid.fill(current + markingDirection.getValue(nextDirection), 'O')
+            }
+        }
+
+        return grid.sumOf { row -> row.count { it == '.' } }
+    }
+
+    private fun replaceAllNonPipeWithDot(grid: Array<CharArray>, pipe: Set<Point2D>) {
+        grid.forEachIndexed { y, row ->
+            row.forEachIndexed { x, _ ->
+                val at = Point2D(x, y)
+                if (at !in pipe) grid[at] = '.'
+            }
+        }
+    }
+
+
+    private fun goThroughPipe(
+        start: Point2D,
+        grid: Array<CharArray>,
+        preMove: (Point2D, Point2D, Point2D) -> (Unit) = { _, _, _ -> }
+    ): Set<Point2D> {
+        val pipe = mutableSetOf(start)
+
         var current = start.neighbours()
             .filter { grid.isSafe(it) }
             .first {
@@ -20,15 +70,27 @@ class Day10 {
                 movements.containsKey(grid[it] to difference)
             }
 
-        var steps = 1
-        var nextDirection = current - start
+        var direction = current - start
         while (current != start) {
-            steps++
-            nextDirection = movements[grid[current] to nextDirection]!!
-            current += nextDirection
+            pipe += current
+            val nextDirection = movements[grid[current] to direction]!!
+            preMove(current, direction, nextDirection)
+            direction = nextDirection
+            current += direction
         }
+        return pipe
+    }
 
-        return steps / 2
+    private fun Array<CharArray>.fill(at: Point2D, c: Char) {
+        if (!isSafe(at)) return
+        val queue = ArrayDeque<Point2D>().apply { add(at) }
+        while (queue.isNotEmpty()) {
+            val next = queue.removeFirst()
+            if (this[next] == '.') {
+                this[next] = c
+                queue.addAll(next.neighbours().filter { isSafe(it) })
+            }
+        }
     }
 
     private val movements: Map<Pair<Char, Point2D>, Point2D> =
@@ -47,7 +109,15 @@ class Day10 {
             ('F' to NORTH) to EAST
         )
 
-    fun Array<CharArray>.isSafe(at: Point2D) =
+    private val markingDirection: Map<Point2D, Point2D> =
+        mapOf(
+            SOUTH to EAST,
+            NORTH to WEST,
+            WEST to SOUTH,
+            EAST to NORTH
+        )
+
+    private fun Array<CharArray>.isSafe(at: Point2D) =
         at.y in this.indices && at.x in this[at.y].indices
 
     operator fun Array<CharArray>.set(at: Point2D, c: Char) {
