@@ -26,6 +26,33 @@ class Day22 {
         return disintegratedCount
     }
 
+    fun part2(fileName: String): Int {
+        val bricks = FileProvider().readFileAsLines(fileName)
+            .map { Brick.of(it) }
+            .sortedBy { brick -> brick.start.z }
+
+        val laidBricks = layBricks(bricks)
+
+        val (supports, supportedBy) = calculateSupports(laidBricks)
+
+        return laidBricks.sumOf { findFalling(it, supports, supportedBy).size - 1 }
+    }
+
+    private fun findFalling(brick: Brick, supports: Map<Brick, Set<Brick>>, supportedBy: Map<Brick, Set<Brick>>): Set<Brick> {
+        val queue = ArrayDeque(supports[brick]?.filter { supportedBy[it]?.size == 1 } ?: listOf())
+        val falling = mutableSetOf(brick).apply { addAll(queue) }
+        while (queue.isNotEmpty()) {
+            val firstBrick = queue.removeFirst()
+            supports[firstBrick]?.filterNot { falling.contains(it) }?.forEach { b ->
+                if (supportedBy[b]?.all { falling.contains(it) } == true) {
+                    queue.addLast(b)
+                    falling.add(b)
+                }
+            }
+        }
+        return falling
+    }
+
     private fun layBricks(bricks: List<Brick>): List<Brick> {
         var moved: Boolean
         val laidBricks = bricks.toMutableList()
